@@ -125,9 +125,9 @@ namespace ShedulerResearch
                 case RepeaterUnit.Week:
                     return new DateTime(date.Year, date.Month, date.Day); //Написать подсчёт
                 case RepeaterUnit.Month:
-                    return new DateTime(date.Year, date.Month, 0);
+                    return new DateTime(date.Year, date.Month, 1);
                 case RepeaterUnit.Year:
-                    return new DateTime(date.Year, 0, 0);
+                    return new DateTime(date.Year, 1, 1);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(unit), unit, null);
             }

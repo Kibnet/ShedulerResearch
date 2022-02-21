@@ -129,5 +129,50 @@ namespace TestRepeater
             Assert.AreEqual(new DateTime(2022, 1, 1, 2, 0, 0), occurrences[1]);
             Assert.AreEqual(new DateTime(2022, 1, 1, 4, 0, 0), occurrences[2]);
         }
+
+        [Test]
+        public void Simple2Days()
+        {
+            var repeater = new AgileRepeater
+            {
+                Unit = RepeaterUnit.Day,
+                Limit = RepeaterLimit.Month,
+                Pattern = new RepeaterPattern { Indexes = new List<int> { 0 }, Period = 2, Offset = 0 }
+            };
+            var occurrences = repeater.GetNextOccurrences(new DateTime(2022, 1, 1)).Take(3).ToList();
+            Assert.AreEqual(new DateTime(2022, 1, 1), occurrences[0]);
+            Assert.AreEqual(new DateTime(2022, 1, 3), occurrences[1]);
+            Assert.AreEqual(new DateTime(2022, 1, 5), occurrences[2]);
+        }
+
+        [Test]
+        public void Simple2Month()
+        {
+            var repeater = new AgileRepeater
+            {
+                Unit = RepeaterUnit.Month,
+                Limit = RepeaterLimit.Year,
+                Pattern = new RepeaterPattern { Indexes = new List<int> { 0 }, Period = 2, Offset = 0 }
+            };
+            var occurrences = repeater.GetNextOccurrences(new DateTime(2022, 1, 1)).Take(3).ToList();
+            Assert.AreEqual(new DateTime(2022, 1, 1), occurrences[0]);
+            Assert.AreEqual(new DateTime(2022, 3, 1), occurrences[1]);
+            Assert.AreEqual(new DateTime(2022, 5, 1), occurrences[2]);
+        }
+
+        [Test]
+        public void Simple2Year()
+        {
+            var repeater = new AgileRepeater
+            {
+                Unit = RepeaterUnit.Year,
+                Limit = RepeaterLimit.Unlimit,
+                Pattern = new RepeaterPattern { Indexes = new List<int> { 0 }, Period = 2, Offset = 0 }
+            };
+            var occurrences = repeater.GetNextOccurrences(new DateTime(2022, 1, 1)).Take(3).ToList();
+            Assert.AreEqual(new DateTime(2022, 1, 1), occurrences[0]);
+            Assert.AreEqual(new DateTime(2024, 1, 1), occurrences[1]);
+            Assert.AreEqual(new DateTime(2026, 1, 1), occurrences[2]);
+        }
     }
 }
