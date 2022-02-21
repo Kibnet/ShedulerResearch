@@ -22,75 +22,42 @@ namespace ShedulerResearch
         public IEnumerable<DateTime> GetNextOccurrences(DateTime startTime)
         {
             DateTime position = startTime;
-            switch (Unit)
+            position = position.Round(Unit);
+            if (position < startTime)
             {
-                case RepeaterUnit.Minute:
-                    {
-                        position = new DateTime(position.Year, position.Month, position.Day, position.Hour, position.Minute, 0);
-                        if (position < startTime)
-                        {
-                            position = position.AddMinutes(1);
-                        }
-                        break;
-                    }
-                case RepeaterUnit.Hour:
-                    {
-                        position = new DateTime(position.Year, position.Month, position.Day, position.Hour, 0, 0);
-                        if (position < startTime)
-                        {
-                            position = position.AddHours(1);
-                        }
-                        break;
-                    }
-                case RepeaterUnit.Day:
-                    break;
-                case RepeaterUnit.Week:
-                    break;
-                case RepeaterUnit.Month:
-                    break;
-                case RepeaterUnit.Year:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                position = position.Add(Unit);
             }
-
+            
             Func<DateTime, DateTime> limitCalculator;
             Func<DateTime, DateTime> limitEnlarger;
             switch (Limit)
             {
                 case RepeaterLimit.Hour:
-                    limitCalculator = time =>
-                        new DateTime(position.Year, position.Month, position.Day, position.Hour, 0, 0);
-                    limitEnlarger = time => time.AddHours(1);
+                    limitCalculator = time => time.Round(RepeaterUnit.Hour);
+                    limitEnlarger = time => time.Add(RepeaterUnit.Hour);
                     break;
                 case RepeaterLimit.Day:
-                    limitCalculator = time =>
-                        new DateTime(position.Year, position.Month, position.Day, 0, 0, 0);
-                    limitEnlarger = time => time.AddDays(1);
+                    limitCalculator = time => time.Round(RepeaterUnit.Day);
+                    limitEnlarger = time => time.Add(RepeaterUnit.Day);
                     break;
                 case RepeaterLimit.Week:
-                    limitCalculator = time =>
-                        new DateTime(position.Year, position.Month, position.Day, position.Hour, 0, 0);
-                    limitEnlarger = time => time.AddDays(7);
+                    limitCalculator = time => time.Round(RepeaterUnit.Week);
+                    limitEnlarger = time => time.Add(RepeaterUnit.Week);
                     break;
                 case RepeaterLimit.Month:
-                    limitCalculator = time =>
-                        new DateTime(position.Year, position.Month, 0, 0, 0, 0);
-                    limitEnlarger = time => time.AddMonths(1);
+                    limitCalculator = time => time.Round(RepeaterUnit.Month);
+                    limitEnlarger = time => time.Add(RepeaterUnit.Month);
                     break;
                 case RepeaterLimit.Year:
-                    limitCalculator = time =>
-                        new DateTime(position.Year, 0, 0, 0, 0, 0);
-                    limitEnlarger = time => time.AddYears(1);
+                    limitCalculator = time => time.Round(RepeaterUnit.Year);
+                    limitEnlarger = time => time.Add(RepeaterUnit.Year);
                     break;
                 case RepeaterLimit.Unlimit:
                 default:
-                    limitCalculator = time =>
-                        UnlimitStartDate ?? position;
+                    limitCalculator = time => UnlimitStartDate ?? position;
                     limitEnlarger = time => time;
                     break;
             }
-
 
             var limit = limitCalculator.Invoke(position);
             var offset = Pattern.Offset;
@@ -140,6 +107,27 @@ namespace ShedulerResearch
                     return date.AddMonths(value);
                 case RepeaterUnit.Year:
                     return date.AddYears(value);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(unit), unit, null);
+            }
+        }
+
+        public static DateTime Round(this DateTime date, RepeaterUnit unit)
+        {
+            switch (unit)
+            {
+                case RepeaterUnit.Minute:
+                    return new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, 0);
+                case RepeaterUnit.Hour:
+                    return new DateTime(date.Year, date.Month, date.Day, date.Hour, 0, 0);
+                case RepeaterUnit.Day:
+                    return new DateTime(date.Year, date.Month, date.Day, 0, 0, 0);
+                case RepeaterUnit.Week:
+                    return new DateTime(date.Year, date.Month, date.Day); //Написать подсчёт
+                case RepeaterUnit.Month:
+                    return new DateTime(date.Year, date.Month, 0);
+                case RepeaterUnit.Year:
+                    return new DateTime(date.Year, 0, 0);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(unit), unit, null);
             }
