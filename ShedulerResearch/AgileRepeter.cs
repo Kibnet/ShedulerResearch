@@ -27,7 +27,7 @@ namespace ShedulerResearch
             {
                 position = position.Add(Unit);
             }
-            
+
             Func<DateTime, DateTime> limitCalculator;
             Func<DateTime, DateTime> limitEnlarger;
             switch (Limit)
@@ -102,7 +102,7 @@ namespace ShedulerResearch
                 case RepeaterUnit.Day:
                     return date.AddDays(value);
                 case RepeaterUnit.Week:
-                    return date.AddDays(7);
+                    return date.AddDays(7*value);
                 case RepeaterUnit.Month:
                     return date.AddMonths(value);
                 case RepeaterUnit.Year:
@@ -123,7 +123,33 @@ namespace ShedulerResearch
                 case RepeaterUnit.Day:
                     return new DateTime(date.Year, date.Month, date.Day, 0, 0, 0);
                 case RepeaterUnit.Week:
-                    return new DateTime(date.Year, date.Month, date.Day); //Написать подсчёт
+                    {
+                        var result = new DateTime(date.Year, date.Month, date.Day);
+                        switch (result.DayOfWeek)
+                        {
+                            case DayOfWeek.Sunday:
+                                result = result.AddDays(-6);
+                                break;
+                            case DayOfWeek.Monday:
+                                break;
+                            case DayOfWeek.Tuesday:
+                                result = result.AddDays(-1);
+                                break;
+                            case DayOfWeek.Wednesday:
+                                result = result.AddDays(-2);
+                                break;
+                            case DayOfWeek.Thursday:
+                                result = result.AddDays(-3);
+                                break;
+                            case DayOfWeek.Friday:
+                                result = result.AddDays(-4);
+                                break;
+                            case DayOfWeek.Saturday:
+                                result = result.AddDays(-5);
+                                break;
+                        }
+                        return result;
+                    }
                 case RepeaterUnit.Month:
                     return new DateTime(date.Year, date.Month, 1);
                 case RepeaterUnit.Year:

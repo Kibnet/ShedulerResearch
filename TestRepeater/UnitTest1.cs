@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
@@ -173,6 +173,21 @@ namespace TestRepeater
             Assert.AreEqual(new DateTime(2022, 1, 1), occurrences[0]);
             Assert.AreEqual(new DateTime(2024, 1, 1), occurrences[1]);
             Assert.AreEqual(new DateTime(2026, 1, 1), occurrences[2]);
+        }
+
+        [Test]
+        public void Simple2WeekYear()
+        {
+            var repeater = new AgileRepeater
+            {
+                Unit = RepeaterUnit.Week,
+                Limit = RepeaterLimit.Year,
+                Pattern = new RepeaterPattern { Indexes = new List<int> { 0 }, Period = 2, Offset = 0 }
+            };
+            var occurrences = repeater.GetNextOccurrences(new DateTime(2022, 1, 1)).Take(3).ToList();
+            Assert.AreEqual(new DateTime(2021, 12, 27), occurrences[0]);//Так ли?
+            Assert.AreEqual(new DateTime(2022, 1, 10), occurrences[1]);
+            Assert.AreEqual(new DateTime(2022, 1, 24), occurrences[2]);
         }
     }
 }
