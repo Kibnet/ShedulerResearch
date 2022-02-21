@@ -26,14 +26,32 @@ namespace ShedulerResearch
             {
                 case RepeaterUnit.Minute:
                     {
-                        position = new DateTime(position.Year, position.Month, position.Day, position.Hour, position.Minute,
-                            0);
+                        position = new DateTime(position.Year, position.Month, position.Day, position.Hour, position.Minute, 0);
                         if (position < startTime)
                         {
                             position = position.AddMinutes(1);
                         }
                         break;
                     }
+                case RepeaterUnit.Hour:
+                    {
+                        position = new DateTime(position.Year, position.Month, position.Day, position.Hour, 0, 0);
+                        if (position < startTime)
+                        {
+                            position = position.AddHours(1);
+                        }
+                        break;
+                    }
+                case RepeaterUnit.Day:
+                    break;
+                case RepeaterUnit.Week:
+                    break;
+                case RepeaterUnit.Month:
+                    break;
+                case RepeaterUnit.Year:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
             Func<DateTime, DateTime> limitCalculator;
@@ -73,38 +91,57 @@ namespace ShedulerResearch
                     break;
             }
 
-            switch (Unit)
+
+            var limit = limitCalculator.Invoke(position);
+            var offset = Pattern.Offset;
+            var runer = limit.Add(Unit, offset);
+            limit = limitEnlarger.Invoke(limit);
+            while (true)
+            {
+                foreach (var patternIndex in Pattern.Indexes)
+                {
+                    var result = runer.Add(Unit, patternIndex);
+                    if (result >= startTime)
+                    {
+                        yield return result;
+                        startTime = result;
+                    }
+                }
+
+                if (Pattern.Period == null)
+                {
+                    yield break;
+                }
+                runer = runer.Add(Unit, Pattern.Period.Value);
+                if (Limit != RepeaterLimit.Unlimit && runer > limit)
+                {
+                    runer = limit;
+                    limit = limitEnlarger.Invoke(limit);
+                }
+            }
+        }
+    }
+
+    public static class DateTimeExtension
+    {
+        public static DateTime Add(this DateTime date, RepeaterUnit unit, int value = 1)
+        {
+            switch (unit)
             {
                 case RepeaterUnit.Minute:
-                    {
-                        var limit = limitCalculator.Invoke(position);
-                        var offset = Pattern.Offset;
-                        var runer = limit.AddMinutes(offset);
-                        limit = limitEnlarger.Invoke(limit);
-                        while (true)
-                        {
-                            foreach (var patternIndex in Pattern.Indexes)
-                            {
-                                var result = runer.AddMinutes(patternIndex);
-                                if (result >= startTime)
-                                {
-                                    yield return result;
-                                    startTime = result;
-                                }
-                            }
-
-                            if (Pattern.Period == null)
-                            {
-                                yield break;
-                            }
-                            runer = runer.AddMinutes(Pattern.Period.Value);
-                            if (Limit != RepeaterLimit.Unlimit && runer > limit)
-                            {
-                                runer = limit;
-                                limit = limitEnlarger.Invoke(limit);
-                            }
-                        }
-                    }
+                    return date.AddMinutes(value);
+                case RepeaterUnit.Hour:
+                    return date.AddHours(value);
+                case RepeaterUnit.Day:
+                    return date.AddDays(value);
+                case RepeaterUnit.Week:
+                    return date.AddDays(7);
+                case RepeaterUnit.Month:
+                    return date.AddMonths(value);
+                case RepeaterUnit.Year:
+                    return date.AddYears(value);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(unit), unit, null);
             }
         }
     }

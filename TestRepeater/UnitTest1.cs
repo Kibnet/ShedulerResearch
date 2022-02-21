@@ -114,5 +114,20 @@ namespace TestRepeater
             Assert.AreEqual(new DateTime(2022, 1, 1, 0, 18, 0), occurrences[8]);
             Assert.AreEqual(new DateTime(2022, 1, 1, 0, 21, 0), occurrences[9]);
         }
+
+        [Test]
+        public void Simple2Hours()
+        {
+            var repeater = new AgileRepeater
+            {
+                Unit = RepeaterUnit.Hour,
+                Limit = RepeaterLimit.Day,
+                Pattern = new RepeaterPattern { Indexes = new List<int> { 0 }, Period = 2, Offset = 0 }
+            };
+            var occurrences = repeater.GetNextOccurrences(new DateTime(2022, 1, 1)).Take(3).ToList();
+            Assert.AreEqual(new DateTime(2022, 1, 1), occurrences[0]);
+            Assert.AreEqual(new DateTime(2022, 1, 1, 2, 0, 0), occurrences[1]);
+            Assert.AreEqual(new DateTime(2022, 1, 1, 4, 0, 0), occurrences[2]);
+        }
     }
 }
