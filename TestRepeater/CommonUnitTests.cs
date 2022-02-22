@@ -6,7 +6,7 @@ using ShedulerResearch;
 
 namespace TestRepeater
 {
-    public class Tests
+    public class CommonUnitTests
     {
         [SetUp]
         public void Setup()
@@ -100,7 +100,7 @@ namespace TestRepeater
             {
                 Unit = RepeaterUnit.Minute,
                 Limit = RepeaterLimit.Hour,
-                Pattern = new RepeaterPattern { Indexes = new List<int> { 0,3,4,7 }, Period = 8, Offset = 2 }
+                Pattern = new RepeaterPattern { Indexes = new List<int> { 0, 3, 4, 7 }, Period = 8, Offset = 2 }
             };
             var occurrences = repeater.GetNextOccurrences(new DateTime(2022, 1, 1, 0, 0, 12)).Take(10).ToList();
             Assert.AreEqual(new DateTime(2022, 1, 1, 0, 2, 0), occurrences[0]);

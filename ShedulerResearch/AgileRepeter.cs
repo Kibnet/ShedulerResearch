@@ -21,6 +21,21 @@ namespace ShedulerResearch
 
         public IEnumerable<DateTime> GetNextOccurrences(DateTime startTime)
         {
+            var periods = GetNextPeriods(startTime);
+            foreach (var period in periods)
+            {
+                yield return period.Start;
+            }
+        }
+
+        public struct Period
+        {
+            public DateTime Start { get; set; }
+            public TimeSpan Duration { get; set; } 
+        }
+
+        public IEnumerable<Period> GetNextPeriods(DateTime startTime)
+        {
             DateTime position = startTime;
             position = position.Round(Unit);
             if (position < startTime)
@@ -70,20 +85,53 @@ namespace ShedulerResearch
                     var result = runer.Add(Unit, patternIndex);
                     if (result >= startTime)
                     {
-                        yield return result;
+                        TimeSpan duration = TimeSpan.Zero;//TODO
+                        switch (Unit)
+                        {
+                            case RepeaterUnit.Minute:
+                            case RepeaterUnit.Hour:
+                            case RepeaterUnit.Day:
+                                duration = Unit.GetDuration();
+                                break;
+                            case RepeaterUnit.Week:
+                                duration = result.Add(RepeaterUnit.Week).Round(RepeaterUnit.Week) - result;
+                                break;
+                            case RepeaterUnit.Month:
+                                duration = result.Add(RepeaterUnit.Month) - result;
+                                break;
+                            case RepeaterUnit.Year:
+                                duration = result.Add(RepeaterUnit.Year) - result;
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+                        var period = new Period()
+                        {
+                            Start = result,
+                            Duration = duration,
+                        };
+                        yield return period;
                         startTime = result;
                     }
                 }
 
                 if (Pattern.Period == null)
                 {
-                    yield break;
-                }
-                runer = runer.Add(Unit, Pattern.Period.Value);
-                if (Limit != RepeaterLimit.Unlimit && runer > limit)
-                {
+                    if (Limit == RepeaterLimit.Unlimit)
+                    {
+                        yield break;
+                    }
                     runer = limit;
                     limit = limitEnlarger.Invoke(limit);
+                }
+                else
+                {
+                    runer = runer.Add(Unit, Pattern.Period.Value);
+                    if (Limit != RepeaterLimit.Unlimit && runer > limit)
+                    {
+                        runer = limit;
+                        limit = limitEnlarger.Invoke(limit);
+                    }
                 }
             }
         }
@@ -154,6 +202,25 @@ namespace ShedulerResearch
                     return new DateTime(date.Year, date.Month, 1);
                 case RepeaterUnit.Year:
                     return new DateTime(date.Year, 1, 1);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(unit), unit, null);
+            }
+        }
+
+        public static TimeSpan GetDuration(this RepeaterUnit unit, int value = 1)
+        {
+            switch (unit)
+            {
+                case RepeaterUnit.Minute:
+                    return TimeSpan.FromMinutes(value);
+                case RepeaterUnit.Hour:
+                    return TimeSpan.FromHours(value);
+                case RepeaterUnit.Day:
+                    return TimeSpan.FromDays(value);
+                case RepeaterUnit.Week:
+                    return TimeSpan.FromDays(7 * value);
+                case RepeaterUnit.Month:
+                case RepeaterUnit.Year:
                 default:
                     throw new ArgumentOutOfRangeException(nameof(unit), unit, null);
             }
