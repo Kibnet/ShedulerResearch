@@ -2,14 +2,72 @@
 
 namespace PeriodicDates;
 
-//public abstract class PeriodGenerator
-//{
-//    /// <summary>
-//    /// Точка отсчёта для генератора периодов
-//    /// </summary>
-//    DateTime Point { get; }
-//    public virtual Ien
-//}
+public abstract class PeriodGenerator
+{
+    /// <summary>
+    /// Точка отсчёта для генератора периодов
+    /// </summary>
+    DateTime Point { get; }
+
+    public virtual DateTime ReferencePoint { get; } = new DateTime(2018, 1, 1);
+}
+
+public class StaticPeriodGenerator : PeriodGenerator
+{
+    public RepeaterUnit Unit { get; }
+
+    public StaticPeriodGenerator(RepeaterUnit unit)
+    {
+        switch (unit)
+        {
+            case RepeaterUnit.Minute:
+            case RepeaterUnit.Hour:
+            case RepeaterUnit.Day:
+            case RepeaterUnit.Week:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(unit), unit, $"{Unit} not supported");
+        }
+        Unit = unit;
+    }
+
+    public Period GetCurrentPeriod(DateTime startTime)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IEnumerable<Period> GetNextPeriods(DateTime startTime)
+    {
+        DateTime position = startTime;
+        position = position.Round(Unit);
+        if (position < startTime)
+        {
+            position = position.Add(Unit);
+        }
+
+        var runer = position;
+        while (true)
+        {
+            if (runer >= startTime)
+            {
+                var period = new Period
+                {
+                    Begin = runer,
+                    End = runer.Add(Unit),
+                };
+                yield return period;
+                startTime = runer;
+            }
+
+            runer = runer.Add(Unit);
+        }
+    }
+
+    public IEnumerable<Period> GetPrevPeriods(DateTime startTime)
+    {
+        throw new NotImplementedException();
+    }
+}
 
 public class RepeaterRule
 {
@@ -31,7 +89,7 @@ public class RepeaterRule
             yield return period.Begin;
         }
     }
-    
+
     public IEnumerable<Period> GetNextPeriods(DateTime startTime)
     {
         DateTime position = startTime;
