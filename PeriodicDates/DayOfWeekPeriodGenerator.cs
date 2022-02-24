@@ -45,7 +45,8 @@ public class DayOfWeekPeriodGenerator : IPeriodGenerator
         var current = GetCurrentPeriod(startTime);
         if (current.Excluded == false)
         {
-            yield return current;
+            if (current.Begin >= startTime)
+                yield return current;
         }
         else
         {
@@ -69,6 +70,29 @@ public class DayOfWeekPeriodGenerator : IPeriodGenerator
 
     public IEnumerable<Period> GetPreviousPeriods(DateTime startTime)
     {
-        throw new NotImplementedException();
+        var current = GetCurrentPeriod(startTime);
+        if (current.Excluded == false)
+        {
+            if (current.End < startTime)
+                yield return current;
+        }
+        else
+        {
+            current = new Period
+            {
+                Begin = current.End,
+                End = current.End.AddDays(1),
+            };
+        }
+
+        while (true)
+        {
+            current = new Period
+            {
+                Begin = current.Begin.AddDays(-7),
+                End = current.End.AddDays(-7),
+            };
+            yield return current;
+        }
     }
 }

@@ -245,17 +245,18 @@ public class GeneratorsUnitTests
         Assert.AreEqual(initDay.AddDays(21), occurrences[3].Begin);
 
         Assert.IsTrue(occurrences.All(period => period.End == period.Begin.AddDays(1)));
+        
+        //Previous
+        occurrences = generator.GetPreviousPeriods(initDay).Take(4).ToList();
+        Assert.AreEqual(initDay.AddDays(-7), occurrences[0].Begin);
+        Assert.AreEqual(initDay.AddDays(-14), occurrences[1].Begin);
+        Assert.AreEqual(initDay.AddDays(-21), occurrences[2].Begin);
+        Assert.AreEqual(initDay.AddDays(-28), occurrences[3].Begin);
 
+        Assert.IsTrue(occurrences.All(period => period.End == period.Begin.AddDays(1)));
 
-
-        ////Previous
-        //occurrences = generator.GetPreviousPeriods(new DateTime(2022, 1, 1)).Take(4).ToList();
-        //Assert.AreEqual(new DateTime(2021, 1, 1), occurrences[0].Begin);
-        //Assert.AreEqual(new DateTime(2020, 1, 1), occurrences[1].Begin);
-        //Assert.AreEqual(new DateTime(2019, 1, 1), occurrences[2].Begin);
-        //Assert.AreEqual(new DateTime(2018, 1, 1), occurrences[3].Begin);
-
-        //Assert.IsTrue(occurrences.All(period => period.End == period.Begin.AddYears(1)));
+        occurrences = generator.GetPreviousPeriods(initDay.AddDays(1)).Take(1).ToList();
+        Assert.AreEqual(initDay, occurrences[0].Begin);
     }
 
     //[Test]
