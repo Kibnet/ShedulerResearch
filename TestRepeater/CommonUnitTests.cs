@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using ShedulerResearch;
+using PeriodicDates;
 
 namespace TestRepeater
 {
@@ -16,7 +16,7 @@ namespace TestRepeater
         [Test]
         public void Simple2Minutes()
         {
-            var repeater = new AgileRepeater
+            var repeater = new RepeaterRule()
             {
                 Unit = RepeaterUnit.Minute,
                 Limit = RepeaterLimit.Hour,
@@ -31,7 +31,7 @@ namespace TestRepeater
         [Test]
         public void Simple2MinutesWithOffset()
         {
-            var repeater = new AgileRepeater
+            var repeater = new RepeaterRule
             {
                 Unit = RepeaterUnit.Minute,
                 Limit = RepeaterLimit.Hour,
@@ -46,7 +46,7 @@ namespace TestRepeater
         [Test]
         public void Simple7MinutesHasHourLimit()
         {
-            var repeater = new AgileRepeater
+            var repeater = new RepeaterRule
             {
                 Unit = RepeaterUnit.Minute,
                 Limit = RepeaterLimit.Hour,
@@ -61,7 +61,7 @@ namespace TestRepeater
         [Test]
         public void Simple7MinutesHasDayLimit()
         {
-            var repeater = new AgileRepeater
+            var repeater = new RepeaterRule
             {
                 Unit = RepeaterUnit.Minute,
                 Limit = RepeaterLimit.Day,
@@ -81,7 +81,7 @@ namespace TestRepeater
         [Test]
         public void Simple2MinutesWithSeconds()
         {
-            var repeater = new AgileRepeater
+            var repeater = new RepeaterRule
             {
                 Unit = RepeaterUnit.Minute,
                 Limit = RepeaterLimit.Hour,
@@ -96,7 +96,7 @@ namespace TestRepeater
         [Test]
         public void ComplexPatternMinutesWithSeconds()
         {
-            var repeater = new AgileRepeater
+            var repeater = new RepeaterRule
             {
                 Unit = RepeaterUnit.Minute,
                 Limit = RepeaterLimit.Hour,
@@ -118,7 +118,7 @@ namespace TestRepeater
         [Test]
         public void Simple2Hours()
         {
-            var repeater = new AgileRepeater
+            var repeater = new RepeaterRule
             {
                 Unit = RepeaterUnit.Hour,
                 Limit = RepeaterLimit.Day,
@@ -133,7 +133,7 @@ namespace TestRepeater
         [Test]
         public void Simple2Days()
         {
-            var repeater = new AgileRepeater
+            var repeater = new RepeaterRule
             {
                 Unit = RepeaterUnit.Day,
                 Limit = RepeaterLimit.Month,
@@ -148,7 +148,7 @@ namespace TestRepeater
         [Test]
         public void Simple2Month()
         {
-            var repeater = new AgileRepeater
+            var repeater = new RepeaterRule
             {
                 Unit = RepeaterUnit.Month,
                 Limit = RepeaterLimit.Year,
@@ -163,7 +163,7 @@ namespace TestRepeater
         [Test]
         public void Simple2Year()
         {
-            var repeater = new AgileRepeater
+            var repeater = new RepeaterRule
             {
                 Unit = RepeaterUnit.Year,
                 Limit = RepeaterLimit.Unlimit,
@@ -178,7 +178,7 @@ namespace TestRepeater
         [Test]
         public void Simple2WeekYear()
         {
-            var repeater = new AgileRepeater
+            var repeater = new RepeaterRule
             {
                 Unit = RepeaterUnit.Week,
                 Limit = RepeaterLimit.Year,
