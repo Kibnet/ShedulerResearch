@@ -8,7 +8,7 @@ public struct Period
     public bool Excluded { get; set; }
 }
 
-public static class PeriodExtensions
-{
-    public IEnumerable<Period> Intersections
-}
+//public static class PeriodExtensions
+//{
+//    public IEnumerable<Period> Intersections
+//}

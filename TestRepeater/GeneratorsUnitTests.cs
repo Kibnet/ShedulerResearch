@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using PeriodicDates;
@@ -49,7 +50,7 @@ public class GeneratorsUnitTests
     public void StaticPeriodGeneratorByHour()
     {
         var generator = new StaticPeriodGenerator(RepeaterUnit.Hour);
-        
+
         //Next
         var occurrences = generator.GetNextPeriods(new DateTime(2022, 1, 1)).Take(4).ToList();
         Assert.AreEqual(new DateTime(2022, 1, 1), occurrences[0].Begin);
@@ -82,7 +83,7 @@ public class GeneratorsUnitTests
     public void StaticPeriodGeneratorByDay()
     {
         var generator = new StaticPeriodGenerator(RepeaterUnit.Day);
-        
+
         //Next
         var occurrences = generator.GetNextPeriods(new DateTime(2022, 1, 1)).Take(4).ToList();
         Assert.AreEqual(new DateTime(2022, 1, 1), occurrences[0].Begin);
@@ -245,7 +246,7 @@ public class GeneratorsUnitTests
         Assert.AreEqual(initDay.AddDays(21), occurrences[3].Begin);
 
         Assert.IsTrue(occurrences.All(period => period.End == period.Begin.AddDays(1)));
-        
+
         //Previous
         occurrences = generator.GetPreviousPeriods(initDay).Take(4).ToList();
         Assert.AreEqual(initDay.AddDays(-7), occurrences[0].Begin);
@@ -257,6 +258,122 @@ public class GeneratorsUnitTests
 
         occurrences = generator.GetPreviousPeriods(initDay.AddDays(1)).Take(1).ToList();
         Assert.AreEqual(initDay, occurrences[0].Begin);
+    }
+    
+    [Test]
+    public void UnlimiteRepeaterGeneratorWithOffsetNoPeriod()
+    {
+        var yearGenerator = new StaticPeriodGenerator(RepeaterUnit.Year);
+        var pattern = new RepeaterPattern { Indexes = new List<int> { 0, 2, 3 }, Offset = 2 };
+        var unlimiteGenerator = new UnlimiteRepeaterGenerator(yearGenerator, pattern, new DateTime(2022, 1, 1));
+
+        //Next
+        //Equal
+        var occurrences = unlimiteGenerator.GetNextPeriods(new DateTime(2022, 1, 1)).ToList();
+        Assert.AreEqual(new DateTime(2024, 1, 1), occurrences[0].Begin);
+        Assert.AreEqual(new DateTime(2026, 1, 1), occurrences[1].Begin);
+        Assert.AreEqual(new DateTime(2027, 1, 1), occurrences[2].Begin);
+        Assert.AreEqual(3,occurrences.Count);
+        Assert.IsTrue(occurrences.All(period => period.End == period.Begin.AddYears(1)));
+        
+        //After
+        occurrences = unlimiteGenerator.GetNextPeriods(new DateTime(2025, 1, 1)).ToList();
+        Assert.AreEqual(new DateTime(2026, 1, 1), occurrences[0].Begin);
+        Assert.AreEqual(new DateTime(2027, 1, 1), occurrences[1].Begin);
+        Assert.AreEqual(2, occurrences.Count);
+        Assert.IsTrue(occurrences.All(period => period.End == period.Begin.AddYears(1)));
+
+        //Before
+        occurrences = unlimiteGenerator.GetNextPeriods(new DateTime(2000, 1, 1)).ToList();
+        Assert.AreEqual(new DateTime(2024, 1, 1), occurrences[0].Begin);
+        Assert.AreEqual(new DateTime(2026, 1, 1), occurrences[1].Begin);
+        Assert.AreEqual(new DateTime(2027, 1, 1), occurrences[2].Begin);
+        Assert.AreEqual(3, occurrences.Count);
+        Assert.IsTrue(occurrences.All(period => period.End == period.Begin.AddYears(1)));
+    }
+
+    [Test]
+    public void UnlimiteRepeaterGeneratorWithNoOffsetNoPeriod()
+    {
+        var yearGenerator = new StaticPeriodGenerator(RepeaterUnit.Year);
+        var pattern = new RepeaterPattern { Indexes = new List<int> { 0, 2, 3 } };
+        var unlimiteGenerator = new UnlimiteRepeaterGenerator(yearGenerator, pattern, new DateTime(2022, 1, 1));
+
+        //Next
+        var occurrences = unlimiteGenerator.GetNextPeriods(new DateTime(2022, 1, 1)).ToList();
+        Assert.AreEqual(new DateTime(2022, 1, 1), occurrences[0].Begin);
+        Assert.AreEqual(new DateTime(2024, 1, 1), occurrences[1].Begin);
+        Assert.AreEqual(new DateTime(2025, 1, 1), occurrences[2].Begin);
+        Assert.IsTrue(occurrences.All(period => period.End == period.Begin.AddYears(1)));
+        
+        //After
+        occurrences = unlimiteGenerator.GetNextPeriods(new DateTime(2023, 1, 1)).ToList();
+        Assert.AreEqual(new DateTime(2024, 1, 1), occurrences[0].Begin);
+        Assert.AreEqual(new DateTime(2025, 1, 1), occurrences[1].Begin);
+        Assert.AreEqual(2, occurrences.Count);
+        Assert.IsTrue(occurrences.All(period => period.End == period.Begin.AddYears(1)));
+
+        //Before
+        occurrences = unlimiteGenerator.GetNextPeriods(new DateTime(2000, 1, 1)).ToList();
+        Assert.AreEqual(new DateTime(2022, 1, 1), occurrences[0].Begin);
+        Assert.AreEqual(new DateTime(2024, 1, 1), occurrences[1].Begin);
+        Assert.AreEqual(new DateTime(2025, 1, 1), occurrences[2].Begin);
+        Assert.AreEqual(3, occurrences.Count);
+        Assert.IsTrue(occurrences.All(period => period.End == period.Begin.AddYears(1)));
+    }
+
+    [Test]
+    public void UnlimiteRepeaterGeneratorWithOffsetAndPeriod()
+    {
+        var yearGenerator = new StaticPeriodGenerator(RepeaterUnit.Year);
+        var pattern = new RepeaterPattern { Indexes = new List<int> { 0, 2, 3 }, Offset = 2, Period = 5};
+        var unlimiteGenerator = new UnlimiteRepeaterGenerator(yearGenerator, pattern, new DateTime(2022, 1, 1));
+
+        //Next
+        var occurrences = unlimiteGenerator.GetNextPeriods(new DateTime(2022, 1, 1)).Take(7).ToList();
+        Assert.AreEqual(new DateTime(2024, 1, 1), occurrences[0].Begin);
+        Assert.AreEqual(new DateTime(2026, 1, 1), occurrences[1].Begin);
+        Assert.AreEqual(new DateTime(2027, 1, 1), occurrences[2].Begin);
+        Assert.AreEqual(new DateTime(2029, 1, 1), occurrences[3].Begin);
+        Assert.AreEqual(new DateTime(2031, 1, 1), occurrences[4].Begin);
+        Assert.AreEqual(new DateTime(2032, 1, 1), occurrences[5].Begin);
+        Assert.AreEqual(new DateTime(2034, 1, 1), occurrences[6].Begin);
+        Assert.IsTrue(occurrences.All(period => period.End == period.Begin.AddYears(1)));
+        
+        //After
+        occurrences = unlimiteGenerator.GetNextPeriods(new DateTime(2023, 1, 1)).Take(3).ToList();
+        Assert.AreEqual(new DateTime(2024, 1, 1), occurrences[0].Begin);
+        Assert.AreEqual(new DateTime(2026, 1, 1), occurrences[1].Begin);
+        Assert.AreEqual(new DateTime(2027, 1, 1), occurrences[2].Begin);
+        Assert.IsTrue(occurrences.All(period => period.End == period.Begin.AddYears(1)));
+
+        //Before
+        occurrences = unlimiteGenerator.GetNextPeriods(new DateTime(2020, 1, 1)).ToList();
+        Assert.AreEqual(new DateTime(2022, 1, 1), occurrences[0].Begin);
+        Assert.AreEqual(new DateTime(2024, 1, 1), occurrences[1].Begin);
+        Assert.AreEqual(new DateTime(2025, 1, 1), occurrences[2].Begin);
+        Assert.AreEqual(3, occurrences.Count);
+        Assert.IsTrue(occurrences.All(period => period.End == period.Begin.AddYears(1)));
+    }    
+    
+    [Test]
+    public void UnlimiteRepeaterGeneratorWithNoOffsetAndPeriod()
+    {
+        var yearGenerator = new StaticPeriodGenerator(RepeaterUnit.Year);
+        var pattern = new RepeaterPattern { Indexes = new List<int> { 0, 2, 3 }, Period = 5};
+        var unlimiteGenerator = new UnlimiteRepeaterGenerator(yearGenerator, pattern, new DateTime(2024, 1, 1));
+
+        //Next
+        var occurrences = unlimiteGenerator.GetNextPeriods(new DateTime(2024, 1, 1)).Take(7).ToList();
+        Assert.AreEqual(new DateTime(2024, 1, 1), occurrences[0].Begin);
+        Assert.AreEqual(new DateTime(2026, 1, 1), occurrences[1].Begin);
+        Assert.AreEqual(new DateTime(2027, 1, 1), occurrences[2].Begin);
+        Assert.AreEqual(new DateTime(2029, 1, 1), occurrences[3].Begin);
+        Assert.AreEqual(new DateTime(2031, 1, 1), occurrences[4].Begin);
+        Assert.AreEqual(new DateTime(2032, 1, 1), occurrences[5].Begin);
+        Assert.AreEqual(new DateTime(2034, 1, 1), occurrences[6].Begin);
+
+        Assert.IsTrue(occurrences.All(period => period.End == period.Begin.AddYears(1)));
     }
 
     //[Test]
