@@ -7,3 +7,8 @@ public struct Period
     public TimeSpan Duration { get=> End - Begin; set => End = Begin.Add(value); }
     public bool Excluded { get; set; }
 }
+
+public static class PeriodExtensions
+{
+    public IEnumerable<Period> Intersections
+}
