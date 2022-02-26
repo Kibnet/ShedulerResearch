@@ -232,6 +232,8 @@ public class GeneratorsUnitTests
             Assert.AreEqual(initDay.AddDays(1), notCurrentPeriod.Begin);
             Assert.AreEqual(TimeSpan.FromDays(6), notCurrentPeriod.Duration);
             Assert.AreEqual(true, notCurrentPeriod.Excluded);
+            var notCurrentOccurrences = generator.GetNextPeriods(initDay.AddDays(i)).Take(1).ToList();
+            Assert.AreEqual(initDay.AddDays(7), notCurrentOccurrences[0].Begin);
         }
         var currentPeriod = generator.GetCurrentPeriod(initDay);
         Assert.AreEqual(initDay, currentPeriod.Begin);

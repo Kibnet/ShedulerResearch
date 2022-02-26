@@ -55,6 +55,7 @@ public class DayOfWeekPeriodGenerator : IPeriodGenerator
                 Begin = current.End,
                 End = current.End.AddDays(1),
             };
+            yield return current;
         }
 
         while (true)
