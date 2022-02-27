@@ -232,8 +232,9 @@ public class GeneratorsUnitTests
             Assert.AreEqual(initDay.AddDays(1), notCurrentPeriod.Begin);
             Assert.AreEqual(TimeSpan.FromDays(6), notCurrentPeriod.Duration);
             Assert.AreEqual(true, notCurrentPeriod.Excluded);
-            var notCurrentOccurrences = generator.GetNextPeriods(initDay.AddDays(i)).Take(1).ToList();
+            var notCurrentOccurrences = generator.GetNextPeriods(initDay.AddDays(1)).Take(2).ToList();
             Assert.AreEqual(initDay.AddDays(7), notCurrentOccurrences[0].Begin);
+            Assert.AreEqual(initDay.AddDays(14), notCurrentOccurrences[1].Begin);
         }
         var currentPeriod = generator.GetCurrentPeriod(initDay);
         Assert.AreEqual(initDay, currentPeriod.Begin);
@@ -259,6 +260,9 @@ public class GeneratorsUnitTests
         Assert.IsTrue(occurrences.All(period => period.End == period.Begin.AddDays(1)));
 
         occurrences = generator.GetPreviousPeriods(initDay.AddDays(1)).Take(1).ToList();
+        Assert.AreEqual(initDay, occurrences[0].Begin);
+
+        occurrences = generator.GetPreviousPeriods(initDay.AddDays(1).AddTicks(1)).Take(1).ToList();
         Assert.AreEqual(initDay, occurrences[0].Begin);
     }
     
@@ -350,11 +354,13 @@ public class GeneratorsUnitTests
         Assert.IsTrue(occurrences.All(period => period.End == period.Begin.AddYears(1)));
 
         //Before
-        occurrences = unlimiteGenerator.GetNextPeriods(new DateTime(2020, 1, 1)).ToList();
-        Assert.AreEqual(new DateTime(2022, 1, 1), occurrences[0].Begin);
-        Assert.AreEqual(new DateTime(2024, 1, 1), occurrences[1].Begin);
-        Assert.AreEqual(new DateTime(2025, 1, 1), occurrences[2].Begin);
-        Assert.AreEqual(3, occurrences.Count);
+        occurrences = unlimiteGenerator.GetNextPeriods(new DateTime(2018, 1, 1)).Take(6).ToList();
+        Assert.AreEqual(new DateTime(2019, 1, 1), occurrences[0].Begin);
+        Assert.AreEqual(new DateTime(2021, 1, 1), occurrences[1].Begin);
+        Assert.AreEqual(new DateTime(2022, 1, 1), occurrences[2].Begin);
+        Assert.AreEqual(new DateTime(2024, 1, 1), occurrences[3].Begin);
+        Assert.AreEqual(new DateTime(2026, 1, 1), occurrences[4].Begin);
+        Assert.AreEqual(new DateTime(2027, 1, 1), occurrences[5].Begin);
         Assert.IsTrue(occurrences.All(period => period.End == period.Begin.AddYears(1)));
     }    
     

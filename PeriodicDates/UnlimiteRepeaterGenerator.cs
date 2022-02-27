@@ -20,36 +20,83 @@ public class UnlimiteRepeaterGenerator : IPeriodGenerator
 
     public IEnumerable<Period> GetNextPeriods(DateTime startTime)
     {
-        //if (StartDate < startTime)
-        var source = SourceGenerator.GetNextPeriods(StartDate);
+        IEnumerable<Period> source;
+        int counter = 0;
+        if (Pattern.Period == null)
+        {
+            source = SourceGenerator.GetNextPeriods(StartDate);
+            if (Pattern.Offset > 0)
+            {
+                source = source.Skip(Pattern.Offset);
+            }
+        }
+        else
+        {
+            if (StartDate > startTime)
+            {
+                counter = (Pattern.Period.Value - 1) - Pattern.Offset;
+                source = SourceGenerator.GetPreviousPeriods(StartDate);
+                var needFinish = false;
+                DateTime newStartDate = StartDate;
+                foreach (var period in source)
+                {
+                    counter--;
+                    if (counter<0)
+                    {
+                        counter = Pattern.Period.Value;
+                    }
+
+                    if (!needFinish)
+                    {
+                        if (period.End < startTime)
+                        {
+                            needFinish = true;
+                        }
+                    }
+
+                    if (needFinish)
+                    {
+                        if (counter == 0)
+                        {
+                            newStartDate = period.Begin;
+                            break;
+                        }
+                    }
+                }
+                source = SourceGenerator.GetNextPeriods(newStartDate);
+            }
+            else
+            {
+                source = SourceGenerator.GetNextPeriods(StartDate);
+                if (Pattern.Offset > 0)
+                {
+                    source = source.Skip(Pattern.Offset);
+                }
+            }
+        }
 
         //проверить что если период не задан, не могут быть выбраны отрицательные индексы
-        int counter = 0 - Pattern.Offset;
         var patternIndices = Pattern.Indexes.OrderBy(i => i).ToList();
         if (Pattern.Period.HasValue)
         {
             var buffer = new List<Period>(Pattern.Period.Value);
             foreach (var period in source)
             {
-                if (counter < 0)
+                buffer.Add(period);
+                counter++;
+                if (counter >= Pattern.Period.Value)
                 {
-                    counter++;
-                }
-                else
-                {
-                    buffer.Add(period);
-                    counter++;
-                    if (counter >= Pattern.Period.Value)
+                    foreach (var index in patternIndices)
                     {
-                        foreach (var index in patternIndices)
+                        if (buffer[index].Begin>=startTime)
                         {
                             yield return buffer[index];
                         }
-
-                        counter = 0;
-                        buffer.Clear();
-                        continue;
                     }
+
+                    counter = 0;
+                    buffer.Clear();
+                    continue;
                 }
             }
         }
@@ -67,7 +114,7 @@ public class UnlimiteRepeaterGenerator : IPeriodGenerator
 
                     if (counter == patternIndices[patternIndex])
                     {
-                        if(period.Begin>= startTime)
+                        if (period.Begin >= startTime)
                             yield return period;
                         patternIndex++;
                     }

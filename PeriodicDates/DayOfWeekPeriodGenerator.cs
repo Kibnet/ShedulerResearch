@@ -72,12 +72,7 @@ public class DayOfWeekPeriodGenerator : IPeriodGenerator
     public IEnumerable<Period> GetPreviousPeriods(DateTime startTime)
     {
         var current = GetCurrentPeriod(startTime);
-        if (current.Excluded == false)
-        {
-            if (current.End < startTime)
-                yield return current;
-        }
-        else
+        if (current.Excluded != false)
         {
             current = new Period
             {
