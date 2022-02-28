@@ -354,6 +354,18 @@ public class GeneratorsUnitTests
         Assert.IsTrue(occurrences.All(period => period.End == period.Begin.AddYears(1)));
 
         //Before
+
+        occurrences = unlimiteGenerator.GetNextPeriods(new DateTime(2018, 1, 1)).Take(6).ToList();
+        Assert.AreEqual(new DateTime(2019, 1, 1), occurrences[0].Begin);
+        Assert.AreEqual(new DateTime(2021, 1, 1), occurrences[1].Begin);
+        Assert.AreEqual(new DateTime(2022, 1, 1), occurrences[2].Begin);
+        Assert.AreEqual(new DateTime(2024, 1, 1), occurrences[3].Begin);
+        Assert.AreEqual(new DateTime(2026, 1, 1), occurrences[4].Begin);
+        Assert.AreEqual(new DateTime(2027, 1, 1), occurrences[5].Begin);
+        Assert.IsTrue(occurrences.All(period => period.End == period.Begin.AddYears(1)));
+
+        unlimiteGenerator = new UnlimiteRepeaterGenerator(yearGenerator, pattern, new DateTime(2027, 1, 1));
+        
         occurrences = unlimiteGenerator.GetNextPeriods(new DateTime(2018, 1, 1)).Take(6).ToList();
         Assert.AreEqual(new DateTime(2019, 1, 1), occurrences[0].Begin);
         Assert.AreEqual(new DateTime(2021, 1, 1), occurrences[1].Begin);
