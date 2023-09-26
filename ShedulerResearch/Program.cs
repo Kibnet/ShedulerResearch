@@ -3,6 +3,13 @@
 using CronExpressionDescriptor;
 using Cronos;
 
+//Пример интерфейса для настройки https://www.freeformatter.com/cron-expression-generator-quartz.html
+
+//cron4j - сочетание нескольких паттернов через |
+//паттерн должен быть в состоянии вычислить следующую дату запуска основываясь только на своих данных
+//нужно решить проблему границ месяцев и годов, для этого нужен признак и стартовая дата
+//нужно добавить задание года
+
 void GetCronDescription(string description, string pattern, string comment = "ничего")
 {
     //Перевод в человекочитаемый вид
